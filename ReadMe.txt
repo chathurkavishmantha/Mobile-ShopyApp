@@ -13,3 +13,11 @@ Unable to resolve module react-native-image-slider-box from E:\Projects\laundry-
 
 Fixled: npm i deprecated-react-native-prop-types
         node modules --> react-module --> change index files 400 line
+
+npm install @reduxjs/toolkit
+npm install react-redux
+npm install @react-navigation/native
+npx expo install react-native-screens react-native-safe-area-context
+npm install @react-navigation/native-stack
+npm install @awrminkhodaei/react-native-horizontal-datepicker
+npm i moment-jalaali

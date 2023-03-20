@@ -12,12 +12,22 @@ import React, { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
-import Carousel from "./Carousel";
-import Services from "./Services";
-import DressItem from "./DressItem";
-
+import Carousel from "../components/Carousel";
+import Services from "../components/Services";
+import DressItem from "../components/DressItem";
+import { useDispatch, useSelector } from "react-redux";
+import { getProducts } from "../data/ProductReducer";
+import { Service } from "../data/Data";
+import { useNavigation } from "@react-navigation/native";
+import { onPress } from "deprecated-react-native-prop-types/DeprecatedTextPropTypes";
 
 const HomeScreen = () => {
+  const cart = useSelector((state) => state.cart.cart);
+  const total = cart
+    .map((item) => item.quantity * item.price)
+    .reduce((curruntValue, previouseValue) => curruntValue + previouseValue, 0);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [displayCurruntAddress, setDisplayCurruntAddress] = useState(
     "We are loading your location"
   );
@@ -72,137 +82,127 @@ const HomeScreen = () => {
     }
 
     const { coords } = await Location.getCurrentPositionAsync();
-    console.log(coords);
+    // console.log(coords);
     if (coords) {
       const { latitude, longitude } = coords;
       let response = await Location.reverseGeocodeAsync({
         latitude,
         longitude,
       });
-      console.log(response);
+      // console.log(response);
 
       for (let item of response) {
-        let address = `${item.name} ${item.city} ${item.postalCode}`;
+        let address = `${item.name} ${item.city}`;
         console.log(`this is my city : `, address);
         setDisplayCurruntAddress(address);
       }
     }
   };
 
-  // products data 
-const services = [
-  {
-    id: "0",
-    image: "https://cdn-icons-png.flaticon.com/128/4643/4643574.png",
-    name: "shirt",
-    quantity: 0,
-    price: 10,
-  },
-  {
-    id: "11",
-    image: "https://cdn-icons-png.flaticon.com/128/892/892458.png",
-    name: "T-shirt",
-    quantity: 0,
-    price: 10,
-  },
-  {
-    id: "12",
-    image: "https://cdn-icons-png.flaticon.com/128/9609/9609161.png",
-    name: "dresses",
-    quantity: 0,
-    price: 10,
-  },
-  {
-    id: "13",
-    image: "https://cdn-icons-png.flaticon.com/128/599/599388.png",
-    name: "jeans",
-    quantity: 0,
-    price: 10,
-  },
-  {
-    id: "14",
-    image: "https://cdn-icons-png.flaticon.com/128/9431/9431166.png",
-    name: "Sweater",
-    quantity: 0,
-    price: 10,
-  },
-  {
-    id: "15",
-    image: "https://cdn-icons-png.flaticon.com/128/3345/3345397.png",
-    name: "shorts",
-    quantity: 0,
-    price: 10,
-  },
-  {
-    id: "16",
-    image: "https://cdn-icons-png.flaticon.com/128/293/293241.png",
-    name: "Sleeveless",
-    quantity: 0,
-    price: 10,
-  },
-];
+  const product = useSelector((state) => state.product.product);
+  console.log(`product array`, product);
+
+  useEffect(() => {
+    if (product.length > 0) return;
+
+    const fetchProduct = () => {
+      Service.map((service) => dispatch(getProducts(service)));
+    };
+
+    fetchProduct();
+  }, []);
 
   return (
-    <ScrollView style={{flex:1, backgroundColor:'#F5F7F4', marginTop:50}}>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          marginTop: 35,
-          padding: 10,
-        }}
-      >
-        <MaterialIcons name="location-on" size={30} color="red" />
-        <View>
-          <Text style={{ fontSize: 18, fontWeight: "600" }}>Home</Text>
-          <Text>{displayCurruntAddress}</Text>
+    <>
+      <ScrollView style={{ flex: 1, backgroundColor: "#F5F7F4" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: 35,
+            padding: 10,
+          }}
+        >
+          <MaterialIcons name="location-on" size={30} color="red" />
+          <View>
+            <Text style={{ fontSize: 18, fontWeight: "600" }}>Home</Text>
+            <Text>{displayCurruntAddress}</Text>
+          </View>
+          <Pressable style={{ marginLeft: "auto", marginRight: 7 }}>
+            <Image
+              style={{ width: 50, height: 50, borderRadius: 25 }}
+              source={{
+                uri: "https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-1/334936478_858626305238547_1854540384226413345_n.jpg?stp=cp0_dst-jpg_p40x40&_nc_cat=103&ccb=1-7&_nc_sid=7206a8&_nc_ohc=MUV8vZy2SEYAX8vOzTB&_nc_ht=scontent.fcmb1-2.fna&oh=00_AfCS_XlwH6ukhfRPmIYfr0sWmvwiYArdEvrEaTQ54cTcRg&oe=6418743A",
+              }}
+            />
+          </Pressable>
         </View>
-        <Pressable style={{ marginLeft: "auto", marginRight: 7 }}>
-          <Image
-            style={{ width: 50, height: 50, borderRadius: 25 }}
-            source={{
-              uri: "https://scontent.fcmb1-2.fna.fbcdn.net/v/t39.30808-6/334936478_858626305238547_1854540384226413345_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=z2f0aqAq4nYAX9dZYFl&_nc_ht=scontent.fcmb1-2.fna&oh=00_AfBkXK11mgaGXvUbTl0Ylbx0Cr-CLjWbAGOyhtzDzcueCA&oe=6410E7C0",
-            }}
+
+        {/* Search Bar */}
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            padding: 10,
+            margin: 10,
+            borderWidth: 0.8,
+            borderColor: "#c0c0c0",
+            justifyContent: "space-between",
+            borderRadius: 7,
+          }}
+        >
+          <TextInput placeholder="Search For items or More" />
+          <Feather
+            style={{ marginLeft: "auto" }}
+            name="search"
+            size={24}
+            color="black"
           />
+        </View>
+
+        {/* Images Carousel */}
+        <Carousel />
+
+        {/* Services */}
+        <Services />
+
+        {/* Render Products */}
+        {product.map((item, index) => (
+          <DressItem item={item} key={index} />
+        ))}
+      </ScrollView>
+
+      {total === 0 ? null : (
+        <Pressable
+          style={{
+            backgroundColor: "#088f8f",
+            padding: 10,
+            marginBottom: 30,
+            margin: 15,
+            borderRadius: 7,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <View >
+            <View style={{flexDirection:"row", alignItems:"center"}}>
+            <Text style={{ fontSize: 18, fontWeight: "600", color:"white"}}>{cart.length} </Text>
+            <Text style={{ fontSize: 14, fontWeight: "600", color:"white" }}>Items | </Text>
+            <Text style={{ fontSize: 18, fontWeight: "600", color:"white" }}>${total}</Text>
+
+
+            </View>
+            <Text style={{ fontSize: 13, fontWeight: "400", color:"white", marginRight:6 }}>Extra charges might apply</Text>
+          </View>
+
+          <Pressable onPress={() => navigation.navigate("PickUp")} style={{ backgroundColor:"yellow",padding:10, borderRadius: 20 }}>
+            <Text style={{ fontSize: 14, fontWeight: "700", color:"black", marginRight:6 }}>Proceed to Pick Up</Text>
+          </Pressable>
         </Pressable>
-      </View>
-
-      {/* Search Bar */}
-
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          padding: 10,
-          margin: 10,
-          borderWidth: 0.8,
-          borderColor: "#c0c0c0",
-          justifyContent: "space-between",
-          borderRadius: 7,
-        }}
-      >
-        <TextInput placeholder="Search For items or More" />
-        <Feather
-          style={{ marginLeft: "auto" }}
-          name="search"
-          size={24}
-          color="black"
-        />
-      </View>
-
-      {/* Images Carousel */}
-      <Carousel />
-
-      {/* Services */}
-      <Services />
-
-      {/* Render Products */}
-      {
-        services.map((product,index) =>(
-          <DressItem item={product} key={index}/>
-        ))
-      }
-    </ScrollView>
+      )}
+    </>
   );
 };
 

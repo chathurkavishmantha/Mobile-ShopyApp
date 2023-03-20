@@ -27,7 +27,7 @@ const Services = () => {
 
   return (
     <View style={{padding:10}}>
-      <Text>Service List</Text>
+      <Text style={{ fontSize: 14, fontWeight: "600" }}> Avaliable Services</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {services.map((service, index) => (
           <Pressable key={index} style={{padding:10, margin:10, borderRadius:7, backgroundColor:'white'}}>
